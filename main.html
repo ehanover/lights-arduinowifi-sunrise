@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sunrise lights</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      html, body {
+        overflow-x: hidden;
+      }
+      body {
+        position: relative;
+        padding: 10px;
+      }
+      #main {
+        background-color: white;
+      }
+      #submit {
+        position: absolute;
+        left: 50%;
+      }
+      #tabs {
+        display: flex;
+        justify-content: space-evenly;
+      }
+      .tab-link {
+        background-color: white;
+        padding: 10px 30px;
+      }
+      .tab-link-selected {
+        background-color: gray;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+      .tab-content {
+        background-color: gray;
+
+        display: flex;
+        flex-direction: column;
+      }
+
+      .content-spacing {
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id='main'>
+      <b>Sunrise lights</b>
+      <br/>
+      <br/>
+      <div id='tabs'>
+        <a class='tab-link' onclick='showTab(0)'>Sunrise</a>
+        <a class='tab-link' onclick='showTab(1)'>Random</a>
+        <a class='tab-link' onclick='showTab(2)'>Solid</a>
+      </div>
+
+      <div class='tab-content'> 
+        <!-- Sunrise -->
+        <span class='content-spacing'>
+          <label for='sunrise-time'>By time</label>
+          <input id='sunrise-time' type='time' />
+        </span>
+
+        <span class='content-spacing'>
+          <label for='sunrise-color'>get to color</label>
+          <input id='sunrise-color' type='color' />
+        </span>
+
+        <span class='content-spacing'>
+          <label for='sunrise-brightness'>get to brightness</label>
+          <input id='sunrise-brightness' type='number' size='5' value='100'/>
+        </span>
+
+        <span class='content-spacing'>
+          <label for='sunrise-duration'>over</label>
+          <input id='sunrise-duration' type='number' size='5' value='30'/>
+          minutes
+        </span>
+      </div>
+
+      <div class='tab-content'>
+        <h1>Hello1</h1>
+        <h2>World1</h2>
+      </div>
+
+      <div class='tab-content'>
+        <h1>Hello2</h1>
+        <h2>World2</h2>
+      </div>
+
+      <button id='submit'>Submit</button>
+
+    </div>
+
+
+    <script type='text/javascript'>
+      let contents = [];
+      let links = [];
+
+      function showTab(selectedIndex) {
+        // console.log('switching to', selectedIndex);
+
+        for(let i=0; i<contents.length; i++) {
+          contents[i].style.display = 'none';
+        }
+        contents[selectedIndex].style.display = 'flex';
+
+        for(let i=0; i<links.length; i++) {
+          links[i].classList.remove('tab-link-selected');
+        }
+        links[selectedIndex].classList.add('tab-link-selected');
+      }
+
+      window.onload = () => {
+        contents = document.getElementsByClassName('tab-content');
+        links = document.getElementsByClassName('tab-link');
+
+        showTab(0);
+      }
+    </script>
+  </body>
+</html>
