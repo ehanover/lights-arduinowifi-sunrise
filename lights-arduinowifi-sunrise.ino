@@ -1,3 +1,8 @@
+/*
+https://www.arduino.cc/reference/en/libraries/arduino-timer/
+https://www.arduino.cc/reference/en/libraries/wifinina/wifi.gettime/
+*/
+
 #include <WiFiNINA.h>
 #include "wifi_secrets.h"
 #include "html_page.h"
@@ -8,6 +13,11 @@ const char pass[] = SECRET_PASS;
 int status = WL_IDLE_STATUS;      //connection status
 WiFiServer server(80);            //server socket
 WiFiClient client = server.available();
+
+char httpRequestType;
+
+int postContentLength;
+char postContent[15]; // TODO ensure sufficient size
 
 
 void setup() {
@@ -25,13 +35,10 @@ void setup() {
 
 void loop() {
   client = server.available();
+  serveClient();
 
-  if (client) {
-    printWEB();
-  } else {
-    Serial.println("looping");
-    delay(200);
-  }
+  // Serial.println("looping");
+  delay(200);
 }
 
 void printWifiStatus() {
@@ -77,52 +84,88 @@ void connectWiFi() {
     status = WiFi.begin(ssid, pass);
 
     // wait X seconds for connection:
-    delay(5000);
+    delay(5500);
   }
 }
 
-void printWEB() {
+void handleGET() {
+  // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK) and a content-type so the client knows what's coming, then a blank line:
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-type:text/html");
+  client.println();
+  client.print(html_page);
+  client.println(); // The HTTP response ends with another blank line
+}
+
+void handlePOST() {
+  for(int i=0; i<postContentLength; i++) {
+    char c = client.read();
+    Serial.print("Got char=");
+    Serial.println(c);
+    postContent[i] = c;
+  }
+
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-type:text/html");
+  client.println();
+}
+
+void serveClient() {
   if (!client) {
     return;
   }
+
+  // TODO ensure connected to network here
+
   Serial.println("new client");
+  httpRequestType = 0;
+  postContentLength = 0;
 
-  String currentLine = "";       // make a String to hold incoming data from the client
-  while (client.connected()) {   // loop while the client's connected
-    if (client.available()) {    // if there's bytes to read from the client,
-      char c = client.read();    // read a byte, then
-      Serial.write(c);           // print it out the serial monitor
-      if (c == '\n') {           // if the byte is a newline character
+  String currentLine = ""; // make a String to hold incoming data from the client
+  while (client.connected()) { // loop while the client's connected
+    if (client.available()) { // if there's bytes to read from the client,
+      char c = client.read();
+      // Serial.write(c);
 
-        // if the current line is blank, you got two newline characters in a row.
-        // that's the end of the client HTTP request, so send a response:
-        if (currentLine.length() == 0) {
+      if (c == '\n') {
+        // Serial.println(currentLine);
 
-          // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK) and a content-type so the client knows what's coming, then a blank line:
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-type:text/html");
-          client.println();
-          client.print(html_page);
-
-
-          // The HTTP response ends with another blank line
-          client.println();
-          // break out of the while loop (disconnect from the client)
-          break;
-        } else {  // if you got a newline, then clear currentLine:
-          currentLine = "";
+        // Check for keywords in the latest line
+        if(currentLine.indexOf("GET") >= 0) {
+          httpRequestType = 0;
+          Serial.println("  (detected incoming GET)");
+        } else if(currentLine.indexOf("POST") >= 0) {
+          httpRequestType = 1;
+          Serial.println("  (detected incoming POST)");
+        } else if(currentLine.indexOf("Content-Length") >= 0) {
+          postContentLength = currentLine.substring(16).toInt();
+          Serial.print("  (detected content-length = ");
+          Serial.print(postContentLength);
+          Serial.println(")");
         }
-      } else if (c != '\r') {  // if you got anything else but a carriage return character, add it to the end of the currentLine
-        currentLine += c;
-      }
 
-      if (currentLine.endsWith("GET /H")) {
-        Serial.println("/H");
-      } else if (currentLine.endsWith("GET /L")) {
-        Serial.println("/H");
-      } else {
-        Serial.print("Line is ");
-        Serial.println(currentLine);
+        // if the current line is blank, you got two newline characters in a row. that's the end of the client HTTP request prep
+        if (currentLine.length() == 0) {
+          // handle the appropriate type of request
+          if(httpRequestType == 0) {
+            Serial.println("(handling GET)");
+            handleGET();
+          } else if(httpRequestType == 1) {
+            Serial.println("(handling POST)");
+            handlePOST();
+          } else {
+            Serial.println("(UNKNOWN REQUEST TYPE)");
+          }
+
+          break; // disconnect
+        } 
+        
+        // if you got a newline, then clear currentLine
+        currentLine = "";
+
+      } else if (c != '\r') {
+        // if you got anything else but a carriage return character, add it to the end of the currentLine
+        currentLine += c;
       }
     }
   }
