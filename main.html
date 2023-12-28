@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
     <title>Sunrise lights</title>
 
     <style>
@@ -9,48 +11,59 @@
         padding: 0;
         /* font-family: 'Brush Script MT', serif; */
         /* font-family: ui-monospace; */
+        font-family: 'Gill Sans', 'Gill Sans MT', sans-serif;
+        font-size: 1.1rem;
+        color: white;
+      }
+      button, input {
+        color: black;
+      }
+      input[type=range] {
+        width: 180px;
       }
       html, body {
         overflow-x: hidden;
       }
       body {
         position: relative;
-        padding: 10px;
-
-        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-        font-size: larger;
+        padding: 15px;
+        background-color: black;
       }
       #main {
-        background-color: white;
         margin: auto;
-        max-width: 650px;
-      }
-      #submit {
-        margin: 5px;
+        max-width: 750px;
       }
       #tabs {
         display: flex;
-        justify-content: space-evenly;
+        justify-content: space-between;
       }
       .tab-link {
-        background-color: white;
-        padding: 10px 30px;
+        padding: 10px 0;
+        flex-grow: 1;
+        text-decoration: underline;
+        text-align: center;
+        font-size: 1rem;
       }
       .tab-link-selected {
-        background-color: gray;
+        background-color: #444444;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
       }
       .tab-content {
         display: none;
-        background-color: gray;
-        padding: 10px;
-        /* height: 100px; */
+        background-color: #444444;
+        padding: 15px;
+        min-height: 150px;
 
         flex-direction: column;
+        align-items: center;
       }
       .content-spacing {
-        margin: 20px 0;
+        margin: 22px 0;
+      }
+      .buttons {
+        margin-top: 12px;
+        width: 6rem;
       }
     </style>
   </head>
@@ -63,11 +76,13 @@
       <div id='tabs'>
         <a class='tab-link' onclick='showTab(0)'>Sunrise</a>
         <a class='tab-link' onclick='showTab(1)'>Fade</a>
-        <a class='tab-link' onclick='showTab(2)'>Solid</a>
+        <a class='tab-link' onclick='showTab(2)'>Rave</a>
+        <!-- <a class='tab-link' onclick='showTab(3)'>Siren</a> -->
+        <a class='tab-link' onclick='showTab(3)'>Solid</a>
       </div>
 
-      <div class='tab-content'> 
-        <!-- Sunrise -->
+      <!-- Sunrise -->
+      <div class='tab-content' style='align-items: start;'> 
         <span class='content-spacing'>
           <label for='sunrise-time'>By time</label>
           <input id='sunrise-time' type='time' value='09:00'/>
@@ -80,35 +95,65 @@
 
         <span class='content-spacing'>
           <label for='sunrise-brightness'>get to brightness</label>
-          <input id='sunrise-brightness' type='number' size='5' value='100'/>
+          <input id='sunrise-brightness' type='number' size='5' value='255' min='0' max='255'/>
         </span>
 
         <span class='content-spacing'>
           <label for='sunrise-duration'>over</label>
-          <input id='sunrise-duration' type='number' size='5' value='30'/>
+          <input id='sunrise-duration' type='number' size='5' value='30' min='0' max='1439'/>
           minutes
         </span>
       </div>
 
-      <div class='tab-content' style='align-items: center;'>
-        <input class='content-spacing' type='color' value='#ff0000'>
-        <input class='content-spacing' type='color' value='#00ff00'>
-        <input class='content-spacing' type='color' value='#0000ff'>
+      <!-- Fade -->
+      <div class='tab-content'>
+        <input class='content-spacing' id='fade-color-1' type='color' value='#ff0000'>
+        <input class='content-spacing' id='fade-color-2' type='color' value='#00ff00'>
+        <input class='content-spacing' id='fade-color-3' type='color' value='#0000ff'>
 
         <span class='content-spacing'>
           <label for='fade-speed'>Speed: </label>
-          <input id='fade-speed' type='number' size='5' value='20'/>
+          <br/>
+          <input id='fade-speed' type='range' min='1' max='255' step='1' value='20'/>
+        </span>
+        <span class='content-spacing'>
+          <label for='fade-brightness'>Brightness: </label>
+          <br/>
+          <input id='fade-brightness' type='range' min='1' max='255' step='1' value='128'/>
         </span>
       </div>
 
-      <div class='tab-content' style='align-items: center;'>
-        <input class='content-spacing' type='color' value='#ff00ff'>
-
-        <span style='padding-bottom: 50px;'></span>
+      <!-- Rave -->
+      <div class='tab-content'>
+        <span class='content-spacing'>
+          <input type='radio' id='rave-value-flash' name='rave-values' value='flash' checked>
+          <label for='rave-value-flash'>Flash</label>
+          <br/>
+          <input type='radio' id='rave-value-rainbow' name='rave-values' value='rainbow'>
+          <label for='rave-value-rainbow'>Rainbow</label>
+        </span>
+        <span class='content-spacing'>
+          <label style='margin-top: 10px' for='rave-speed'>Speed: </label>
+          <br/>
+          <input id='rave-speed' type='range' min='1' max='255' step='1' value='200'/>
+        </span>
+        <span class='content-spacing'>
+          <label for='rave-brightness'>Brightness: </label>
+          <br/>
+          <input id='rave-brightness' type='range' min='1' max='255' step='1' value='128'/>
+        </span>
       </div>
 
+      <!-- Solid -->
+      <div class='tab-content'>
+        <input class='content-spacing' id='solid-color' type='color' value='#ff00ff'>
+      </div>
+
+      <!-- Buttons -->
       <div style='text-align: center;'>
-        <button id='submit' onclick='submit()'>Submit</button>
+        <button id='submit' class='buttons' onclick='submit()'>Submit</button>
+        <br/>
+        <button id='off' class='buttons' onclick='off()'>Off</button>
       </div>
 
     </div>
@@ -119,9 +164,16 @@
       let links = [];
       let selectedIndex;
 
-      function showTab(s) {
-        // console.log('switching to', s);
+      function inputToRGB(e) {
+        const v = document.getElementById(e).value;
+        const h = parseInt(v, 16);
+        const r = (h >> 16) & 255;
+        const g = (h >> 8) & 255;
+        const b = h & 255;
+        return [r, g, b];
+      }
 
+      function showTab(s) {
         contents[selectedIndex].style.display = 'none';
         contents[s].style.display = 'flex';
 
@@ -140,23 +192,41 @@
           if(secondsTillAlarm < 0) {
             secondsTillAlarm += secondsPerDay;
           } else {
-            // Since dateTarget uses UTC time in calculation, it could be a day into the future. Correct for that: 
+            // Since dateTarget uses UTC time in calculation, it could be a into the next day. Correct for that: 
             secondsTillAlarm %= secondsPerDay;
           }
 
-          postData([0, 65, 66, 1, 2]);
+          console.log("seconds till:", secondsTillAlarm);
+          postData([2, 
+            (secondsTillAlarm >>> 16) & 0xff, (secondsTillAlarm >>> 8) & 0xff, (secondsTillAlarm >>> 0) & 0xff]
+            .concat(inputToRGB('sunrise-color'))
+            .concat(document.getElementById('sunrise-duration').value));
         } else if(selectedIndex == 1) {
-
+          postData([3]
+            .concat(inputToRGB('fade-color-1'))
+            .concat(inputToRGB('fade-color-2'))
+            .concat(inputToRGB('fade-color-3'))
+            .concat([document.getElementById('fade-speed').value, document.getElementById('fade-brightness').value]));
         } else if(selectedIndex == 2) {
-
+          postData([4, 
+            1 ? document.getElementById('rave-value-rainbow').checked : 0, 
+            document.getElementById('rave-speed').value, document.getElementById('rave-brightness').value]);
+        } else if(selectedIndex == 3) {
+          postData([1]
+            .concat(inputToRGB('solid-color')));
         }
+      }
+
+      function off() {
+        postData([0]);
       }
 
       function postData(d) {
         const data = new Uint8Array(d);
+        console.log("posting data:", data);
         // const url = window.location.href;
-        const url = "http://192.168.1.186";
-        fetch(url, {method: "POST", body: data});
+        const url = 'http://192.168.1.186';
+        fetch(url, {method: 'POST', body: data});
       }
 
       window.onload = () => {
