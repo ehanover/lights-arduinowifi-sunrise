@@ -1,6 +1,6 @@
 /*
 https://www.arduino.cc/reference/en/libraries/arduino-timer/
-https://www.arduino.cc/reference/en/libraries/wifinina/wifi.gettime/ (not needed because simple delay is accurate enough)
+https://www.arduino.cc/reference/en/libraries/wifinina/wifi.gettime/ (not needed because simple delay should be accurate enough)
 
 https://www.htmlminifiers.com/html-minifier
 https://htmlminifier.com/
@@ -15,7 +15,7 @@ https://www.timeanddate.com/date/timeadd.html?type=add
 #include "wifi_secrets.h"
 #include "html_page.h"
 
-#define DEFAULT_MAX_BRIGHTNESS 200 // TODO adjust max brightness
+#define DEFAULT_MAX_BRIGHTNESS 150 // TODO adjust max brightness
 
 #define LED_PIN 9
 #define LED_COUNT 60
@@ -27,7 +27,7 @@ WiFiClient client = server.available();
 
 unsigned char httpRequestType;
 int postContentLength;
-unsigned char postContent[12]; // TODO ensure sufficient size
+unsigned char postContent[8]; // TODO ensure sufficient size
 
 Timer<2, millis> timer;
 Timer<2, millis>::Task sunriseTask; // needs to be declared in this file because used here
@@ -36,7 +36,6 @@ Timer<2, millis>::Task sunriseTask; // needs to be declared in this file because
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   strip.begin();
-  // TODO increase
   strip.setBrightness(DEFAULT_MAX_BRIGHTNESS); // sets the "max" available brightness to max. Use this for power usage, eye comfort, etc only once
   strip.fill(rgbToColor(100, 0, 0));
   strip.show();
@@ -48,18 +47,29 @@ void setup() {
 
   enableWiFi();
   connectWiFi();
-
   server.begin();
   printWifiStatus();
+  flash(rgbToColor(0, 100, 0), 1000, true);
 
-  flash(rgbToColor(0, 100, 0), 500);
+  timer.every(300, serveClient); // start checking the client connection every X ms
+  // postContent[0] = 3;
+  // postContent[1] = 0; // colors
+  // postContent[2] = 70;
+  // postContent[3] = 180;
+  // postContent[4] = 230; // speed
+  // postContent[5] = 210;
 
-  timer.every(200, serveClient); // start checking the client connection every X ms
+  // postContent[0] = 4;
+  // postContent[1] = 0;
+  // postContent[2] = 250;
+  // postContent[3] = 100;
+  // setLightsFromPOST();
 }
 
 void loop() {
   // client = server.available();
   // serveClient();
+
   timer.tick();
   updateLights();
 
@@ -127,17 +137,12 @@ void setLightsFromPOST() {
     strip.fill(rgbToColor(postContent[1], postContent[2], postContent[3]));
     strip.show();
   } else if(b0 == 2) {
-    strip.setBrightness(DEFAULT_MAX_BRIGHTNESS);
-    flash(rgbToColor(100, 100, 100), 500);
     sunriseStart();
   } else if(b0 == 3) {
-    // strip.setBrightness();
-    // flash(rgbToColor(100, 100, 100), 500);
-    // fadeStart();
+    swirlStart();
   } else if(b0 == 4) {
-    strip.setBrightness(postContent[3]);
+    raveStart();
   } else if(b0 == 5) {
-    // strip.setBrightness();
     // sirenStart();
   } else {
     Serial.println("ERROR: unrecognized POST content byte 0");
@@ -147,15 +152,15 @@ void setLightsFromPOST() {
 void updateLights() {
   unsigned char b0 = postContent[0];
   if(b0 == 2) {
-    // sunriseUpdate();
+    // sunrise no-op
   } else if(b0 == 3) {
-    // fadeUpdate();
+    swirlUpdate();
   } else if(b0 == 4) {
     raveUpdate();
   } else if(b0 == 5) {
     // sirenUpdate();
   } else {
-    delay(300);
+    delay(500);
   }
 }
 
@@ -178,12 +183,14 @@ void __attribute__((optimize("O2"))) handleGET() {
 }
 
 void __attribute__((optimize("O2"))) handlePOST() {
+  Serial.print("Got post chars=");
   for(int i=0; i<postContentLength; i++) {
     char c = client.read();
-    Serial.print("Got char=");
-    Serial.println((int)c);
     postContent[i] = c;
+    Serial.print((unsigned char)c);
+    Serial.print(" ");
   }
+  Serial.println();
 
   setLightsFromPOST();
 
@@ -200,7 +207,7 @@ bool serveClient(void* args) {
 
   // TODO ensure connected to wifi here
 
-  Serial.println("new client");
+  Serial.println("new request");
   httpRequestType = 0;
   postContentLength = 0;
 
@@ -216,8 +223,7 @@ bool serveClient(void* args) {
         // Check for keywords in the latest line, as completed lines come in
         if(currentLine.indexOf("GET / ") >= 0) {
           httpRequestType = 0;
-          Serial.print("  (detected incoming GET) line=");
-          Serial.println(currentLine);
+          Serial.println("  (detected incoming GET)");
         } else if(currentLine.indexOf("POST") >= 0) {
           httpRequestType = 1;
           Serial.println("  (detected incoming POST)");
@@ -238,7 +244,7 @@ bool serveClient(void* args) {
             Serial.println("(handling POST)");
             handlePOST();
           } else {
-            Serial.println("(UNSUPPORTED REQUEST TYPE)");
+            Serial.println("(UNSUPPORTED REQUEST TYPE!)");
           }
 
           break; // disconnect

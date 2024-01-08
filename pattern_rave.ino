@@ -1,12 +1,14 @@
 #define FLASH_DELAY_MIN 70
-#define FLASH_DELAY_MAX 1200
+#define FLASH_DELAY_MAX 1000
 
-#define FLASH_NUM_COLORS 4
+#define FLASH_NUM_COLORS 6
 const uint32_t raveFlashColors[] = { // brightness is handled in main file with setBrightness()
   rgbToColor(255, 0, 0),
   rgbToColor(0, 255, 0),
   rgbToColor(0, 0, 255),
   rgbToColor(255, 0, 255),
+  rgbToColor(255, 255, 0),
+  rgbToColor(0, 255, 255),
 };
 int raveFlashIndex = 0;
 
@@ -14,9 +16,13 @@ int raveFlashIndex = 0;
 #define RAINBOW_DELAY_MIN 1
 #define RAINBOW_DELAY_MAX 80
 
-#define RAINBOW_HUE_INC 300
+#define RAINBOW_HUE_INC 390 // use this for speed of rainbow animation. Higher means faster but animation is less smooth (ie bigger color jumps between frames)
 int raveRainbowHue = 0;
 
+
+void raveStart() {
+  strip.setBrightness(postContent[3]);
+}
 
 void raveUpdate() {
   if(postContent[1] == 0) {
@@ -38,7 +44,7 @@ void raveUpdate() {
     strip.rainbow(raveRainbowHue); // equivalent to strip.rainbow(hue, 1, 255, 255, true);
 
     raveRainbowHue += RAINBOW_HUE_INC;
-    if(raveRainbowHue > 65535) {
+    if(raveRainbowHue >= 65535) {
       raveRainbowHue -= 65535;
     }
 

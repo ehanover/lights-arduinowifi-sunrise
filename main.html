@@ -59,7 +59,13 @@
         align-items: center;
       }
       .content-spacing {
-        margin: 22px 0;
+        margin: 20px 0;
+      }
+      .hue-input {
+        margin: 6px 0; 
+        padding: 8px 10px;
+        border: 2px solid black;
+        border-radius: 5px;
       }
       .buttons {
         margin-top: 12px;
@@ -74,11 +80,66 @@
       <br/>
       <br/>
       <div id='tabs'>
-        <a class='tab-link' onclick='showTab(0)'>Sunrise</a>
-        <a class='tab-link' onclick='showTab(1)'>Fade</a>
-        <a class='tab-link' onclick='showTab(2)'>Rave</a>
-        <!-- <a class='tab-link' onclick='showTab(3)'>Siren</a> -->
-        <a class='tab-link' onclick='showTab(3)'>Solid</a>
+        <a class='tab-link' onclick='showTab(0)'>Rave</a>
+        <a class='tab-link' onclick='showTab(1)'>Swirl</a>
+        <!-- <a class='tab-link' onclick='showTab()'>Siren</a> -->
+        <a class='tab-link' onclick='showTab(2)'>Solid</a>
+        <a class='tab-link' onclick='showTab(3)'>Sunrise</a>
+      </div>
+
+
+      <!-- Rave -->
+      <div class='tab-content'>
+        <span class='content-spacing'>
+          <input type='radio' id='rave-value-flash' name='rave-values' value='flash' checked/>
+          <label for='rave-value-flash'>Flash</label>
+          <br/>
+          <input type='radio' id='rave-value-rainbow' name='rave-values' value='rainbow'/>
+          <label for='rave-value-rainbow'>Rainbow</label>
+        </span>
+        <span class='content-spacing'>
+          <label style='margin-top: 10px' for='rave-speed'>Speed: </label>
+          <br/>
+          <input id='rave-speed' type='range' min='1' max='255' step='1' value='200'/>
+        </span>
+        <span class='content-spacing'>
+          <label for='rave-brightness'>Brightness: </label>
+          <br/>
+          <input id='rave-brightness' type='range' min='1' max='255' step='1' value='128'/>
+        </span>
+      </div>
+
+      <!-- Swirl -->
+      <div class='tab-content'>
+        <span class='content-spacing hue-input' id='swirl-hue-1-parent' style='background-color: rgb(255,38,0);'>
+          <input id='swirl-hue-1' type='range' min='0' max='330' step='1' value='10'/> <!-- max value here must match value in hueInputToByte() -->
+        </span>
+        <span class='content-spacing hue-input' id='swirl-hue-2-parent' style='background-color: rgb(0,255,132);'>
+          <input id='swirl-hue-2' type='range' min='0' max='330' step='1' value='150'/>
+        </span>
+        <span class='content-spacing hue-input' id='swirl-hue-3-parent' style='background-color: rgb(47,0,255);'>
+          <input id='swirl-hue-3' type='range' min='0' max='330' step='1' value='250'/>
+        </span>
+
+        <span class='content-spacing'>
+          <label for='swirl-speed'>Speed: </label>
+          <br/>
+          <input id='swirl-speed' type='range' min='1' max='255' step='1' value='20'/>
+        </span>
+        <span class='content-spacing'>
+          <label for='swirl-brightness'>Brightness: </label>
+          <br/>
+          <input id='swirl-brightness' type='range' min='1' max='255' step='1' value='128'/>
+        </span>
+
+        <!-- <span class='content-spacing'>
+          <i>Preset #1</i>
+        </span> -->
+      </div>
+
+      <!-- Solid -->
+      <div class='tab-content'>
+        <input class='content-spacing' id='solid-color' type='color' value='#ff00ff'/>
       </div>
 
       <!-- Sunrise -->
@@ -105,55 +166,11 @@
         </span>
       </div>
 
-      <!-- Fade -->
-      <div class='tab-content'>
-        <input class='content-spacing' id='fade-color-1' type='color' value='#ff0000'>
-        <input class='content-spacing' id='fade-color-2' type='color' value='#00ff00'>
-        <input class='content-spacing' id='fade-color-3' type='color' value='#0000ff'>
-
-        <span class='content-spacing'>
-          <label for='fade-speed'>Speed: </label>
-          <br/>
-          <input id='fade-speed' type='range' min='1' max='255' step='1' value='20'/>
-        </span>
-        <span class='content-spacing'>
-          <label for='fade-brightness'>Brightness: </label>
-          <br/>
-          <input id='fade-brightness' type='range' min='1' max='255' step='1' value='128'/>
-        </span>
-      </div>
-
-      <!-- Rave -->
-      <div class='tab-content'>
-        <span class='content-spacing'>
-          <input type='radio' id='rave-value-flash' name='rave-values' value='flash' checked>
-          <label for='rave-value-flash'>Flash</label>
-          <br/>
-          <input type='radio' id='rave-value-rainbow' name='rave-values' value='rainbow'>
-          <label for='rave-value-rainbow'>Rainbow</label>
-        </span>
-        <span class='content-spacing'>
-          <label style='margin-top: 10px' for='rave-speed'>Speed: </label>
-          <br/>
-          <input id='rave-speed' type='range' min='1' max='255' step='1' value='200'/>
-        </span>
-        <span class='content-spacing'>
-          <label for='rave-brightness'>Brightness: </label>
-          <br/>
-          <input id='rave-brightness' type='range' min='1' max='255' step='1' value='128'/>
-        </span>
-      </div>
-
-      <!-- Solid -->
-      <div class='tab-content'>
-        <input class='content-spacing' id='solid-color' type='color' value='#ff00ff'>
-      </div>
-
       <!-- Buttons -->
       <div style='text-align: center;'>
         <button id='submit' class='buttons' onclick='submit()'>Submit</button>
         <br/>
-        <button id='off' class='buttons' onclick='off()'>Off</button>
+        <button id='off' class='buttons' onclick='postData([0])'>Off</button>
       </div>
 
     </div>
@@ -166,11 +183,12 @@
 
       function inputToRGB(e) {
         const v = document.getElementById(e).value;
-        const h = parseInt(v, 16);
-        const r = (h >> 16) & 255;
-        const g = (h >> 8) & 255;
-        const b = h & 255;
-        return [r, g, b];
+        return [parseInt(v.substr(1,2), 16), parseInt(v.substr(3,2), 16), parseInt(v.substr(5,2), 16)];
+      }
+
+      function hueInputToByte(e) {
+        const h = document.getElementById(e).value;
+        return Math.floor(255 * (h / 330.0));
       }
 
       function showTab(s) {
@@ -184,7 +202,7 @@
       }
 
       function submit() {
-        if(selectedIndex == 0) {
+        if(selectedIndex == 3) {
           const secondsPerDay = 24 * 60 * 60;
           const dateNow = new Date();
           const dateTarget = new Date(dateNow.toISOString().split('T')[0] + 'T' + document.getElementById('sunrise-time').value);
@@ -202,30 +220,24 @@
             .concat(inputToRGB('sunrise-color'))
             .concat(document.getElementById('sunrise-duration').value));
         } else if(selectedIndex == 1) {
-          postData([3]
-            .concat(inputToRGB('fade-color-1'))
-            .concat(inputToRGB('fade-color-2'))
-            .concat(inputToRGB('fade-color-3'))
-            .concat([document.getElementById('fade-speed').value, document.getElementById('fade-brightness').value]));
-        } else if(selectedIndex == 2) {
+          postData([3, 
+            hueInputToByte('swirl-hue-1'), hueInputToByte('swirl-hue-2'), hueInputToByte('swirl-hue-3'),
+            document.getElementById('swirl-speed').value, document.getElementById('swirl-brightness').value]);
+        } else if(selectedIndex == 0) {
           postData([4, 
             1 ? document.getElementById('rave-value-rainbow').checked : 0, 
             document.getElementById('rave-speed').value, document.getElementById('rave-brightness').value]);
-        } else if(selectedIndex == 3) {
+        } else if(selectedIndex == 2) {
           postData([1]
             .concat(inputToRGB('solid-color')));
         }
-      }
-
-      function off() {
-        postData([0]);
       }
 
       function postData(d) {
         const data = new Uint8Array(d);
         console.log("posting data:", data);
         // const url = window.location.href;
-        const url = 'http://192.168.1.186';
+        const url = 'http://192.168.4.44';
         fetch(url, {method: 'POST', body: data});
       }
 
@@ -233,8 +245,15 @@
         contents = document.getElementsByClassName('tab-content');
         links = document.getElementsByClassName('tab-link');
 
+        const swirlHue1 = document.getElementById('swirl-hue-1');
+        swirlHue1.addEventListener('input', () => document.getElementById('swirl-hue-1-parent').style.backgroundColor = `hsl(${swirlHue1.value}, 100%, 50%)`);
+        const swirlHue2 = document.getElementById('swirl-hue-2');
+        swirlHue2.addEventListener('input', () => document.getElementById('swirl-hue-2-parent').style.backgroundColor = `hsl(${swirlHue2.value}, 100%, 50%)`);
+        const swirlHue3 = document.getElementById('swirl-hue-3');
+        swirlHue3.addEventListener('input', () => document.getElementById('swirl-hue-3-parent').style.backgroundColor = `hsl(${swirlHue3.value}, 100%, 50%)`);
+
         selectedIndex = 0;
-        showTab(0);
+        showTab(1);
       }
     </script>
   </body>

@@ -4,8 +4,8 @@ int sunriseIncCount;
 unsigned long sunriseMsBetweenIncs;
 
 void sunriseStart() {
-    strip.clear();
-    strip.show();
+    strip.setBrightness(DEFAULT_MAX_BRIGHTNESS);
+    flash(rgbToColor(100, 100, 100), 1000, true);
   
     // data type must store 86400 (seconds in a day) which is more than 2 bytes
     unsigned long bySeconds = 0;
@@ -19,6 +19,13 @@ void sunriseStart() {
     unsigned long overMillis = postContent[7] * 60L * 1000;
     Serial.print("sunrise OVER millis=");
     Serial.println(overMillis);
+
+    if(overMillis > byMillis) {
+      Serial.println("Sunrise target time is too soon! Exiting pattern");
+      strip.fill(rgbToColor(100, 0, 0));
+      strip.show();
+      return;
+    }
 
     sunriseIncCount = 1;
     sunriseMsBetweenIncs = overMillis / SUNRISE_NUM_INCS;
@@ -35,7 +42,7 @@ bool sunriseIncrementStart(void* arg) {
   timer.cancel(sunriseTask);
   sunriseTask = timer.every(sunriseMsBetweenIncs, sunriseIncrement);
 
-  return false;
+  return true; // this logically should be 'false' but I think it messes up the new task that is just starting
 }
 
 bool sunriseIncrement(void* arg) {
@@ -43,12 +50,15 @@ bool sunriseIncrement(void* arg) {
   if(sunriseIncCount >= SUNRISE_NUM_INCS) {
     Serial.println("@@ SUNRISE DONE!");
 
-    strip.fill(rgbToColor(0, 200, 0));
+    strip.fill(rgbToColor(postContent[4], postContent[5], postContent[6])); // full brightness
+    strip.setPixelColor(0, rgbToColor(0,255,0));
+    strip.setPixelColor(LED_COUNT - 1, rgbToColor(0,255,0));
     strip.show();
-    // TODO start rave?
+
+    // Alternatively could trigger rainbow pattern
     return false;
   } else {
-    Serial.println("@@ sunrise inc-ing");
+    Serial.println("@@ sunrise incrementing");
 
     strip.fill(rgbToColor(postContent[4], postContent[5], postContent[6], (float)sunriseIncCount/SUNRISE_NUM_INCS));
     strip.show();
