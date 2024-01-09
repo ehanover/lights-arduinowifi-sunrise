@@ -2,6 +2,16 @@ let contents = [];
 let links = [];
 let selectedIndex;
 
+async function fetchMainPage() {
+  // Load the real HTML from elsewhere so it's faster
+  try {
+    let response = await fetch('https://raw.githubusercontent.com/ehanover/lights-arduinowifi-sunrise/main/main.html');
+    document.body.innerHTML = await response.text();
+  } catch (err) {
+    console.log('Fetch error:' + err);
+  }
+}
+
 function inputToRGB(e) {
   const v = document.getElementById(e).value;
   return [parseInt(v.substr(1,2), 16), parseInt(v.substr(3,2), 16), parseInt(v.substr(5,2), 16)];
@@ -57,12 +67,14 @@ function submit() {
 function postData(d) {
   const data = new Uint8Array(d);
   console.log("posting data:", data);
-  // const url = window.location.href;
-  const url = 'http://192.168.4.44';
+  const url = window.location.href;
+  // const url = 'http://192.168.4.44';
   fetch(url, {method: 'POST', body: data});
 }
 
-window.onload = () => {
+window.onload = async () => {
+  await fetchMainPage();
+
   contents = document.getElementsByClassName('tab-content');
   links = document.getElementsByClassName('tab-link');
 
