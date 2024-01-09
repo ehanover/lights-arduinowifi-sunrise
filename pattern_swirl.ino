@@ -28,7 +28,9 @@ void calculateGradient() {
 
 float noise(int i) {
   float si = (6.28 * i) / LED_COUNT;
-  return 0.3 * (1 + sin(0.7 * si + r0)) + 0.2 * (1 + sin(r1 - 0.4 * si));
+  return 
+    0.3 * (1 + sin(r0 + 0.6 * si)) + 
+    0.2 * (1 + sin(r1 - 0.4 * si));
 }
 
 void swirlStart() {
@@ -43,14 +45,14 @@ void swirlUpdate() {
   if(r0 >= 6.28) {
     r0 -= 6.28;
   }
-  r1 += 0.006;
+  r1 += 0.009;
   if(r1 >= 6.28) {
     r1 -= 6.28;
   }
 
   for(int i=0; i<LED_COUNT; i++) {
     float n = noise(i);
-    strip.setPixelColor(i, swirlGradient[int(n * GRADIENT_SIZE)]);
+    strip.setPixelColor(LED_COUNT - (i + 1), swirlGradient[int(n * GRADIENT_SIZE)]);
   }
 
   strip.show();
