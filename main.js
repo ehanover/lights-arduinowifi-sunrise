@@ -33,7 +33,7 @@ function showTab(s) {
 }
 
 function submit() {
-  if(selectedIndex == 3) {
+  if(selectedIndex == 4) {
     const secondsPerDay = 24 * 60 * 60;
     const dateNow = new Date();
     const dateTarget = new Date(dateNow.toISOString().split('T')[0] + 'T' + document.getElementById('sunrise-time').value);
@@ -59,6 +59,9 @@ function submit() {
       1 ? document.getElementById('rave-value-rainbow').checked : 0, 
       document.getElementById('rave-speed').value, document.getElementById('rave-brightness').value]);
   } else if(selectedIndex == 2) {
+    postData([5, 
+      document.getElementById('fireworks-speed').value, document.getElementById('fireworks-brightness').value]);
+  } else if(selectedIndex == 3) {
     postData([1]
       .concat(inputToRGB('solid-color')));
   }
@@ -86,5 +89,5 @@ window.onload = async () => {
   swirlHue3.addEventListener('input', () => document.getElementById('swirl-hue-3-parent').style.backgroundColor = `hsl(${swirlHue3.value}, 100%, 50%)`);
 
   selectedIndex = 0;
-  showTab(1);
+  showTab(0);
 }

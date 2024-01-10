@@ -1,5 +1,5 @@
-#define SWIRL_DELAY_MIN 5
-#define SWIRL_DELAY_MAX 300
+#define SWIRL_DELAY_MIN 1
+#define SWIRL_DELAY_MAX 400
 
 #define GRADIENT_SIZE 300
 uint32_t swirlGradient[GRADIENT_SIZE];
@@ -41,11 +41,11 @@ void swirlStart() {
 }
 
 void swirlUpdate() {
-  r0 += 0.017;
+  r0 += 0.012;
   if(r0 >= 6.28) {
     r0 -= 6.28;
   }
-  r1 += 0.009;
+  r1 += 0.0053;
   if(r1 >= 6.28) {
     r1 -= 6.28;
   }

@@ -15,7 +15,7 @@ https://www.timeanddate.com/date/timeadd.html?type=add
 #include "wifi_secrets.h"
 #include "html_page.h"
 
-#define DEFAULT_MAX_BRIGHTNESS 150 // TODO adjust max brightness
+#define DEFAULT_MAX_BRIGHTNESS 150
 
 #define LED_PIN 9
 #define LED_COUNT 60
@@ -52,17 +52,17 @@ void setup() {
   flash(rgbToColor(0, 100, 0), 1000, true);
 
   timer.every(300, serveClient); // start checking the client connection every X ms
+
   // postContent[0] = 3;
   // postContent[1] = 0; // colors
   // postContent[2] = 70;
   // postContent[3] = 180;
-  // postContent[4] = 230; // speed
-  // postContent[5] = 210;
+  // postContent[4] = 250; // speed
+  // postContent[5] = 200;
 
-  // postContent[0] = 4;
-  // postContent[1] = 0;
+  // postContent[0] = 5;
+  // postContent[1] = 250; // speed
   // postContent[2] = 250;
-  // postContent[3] = 100;
   // setLightsFromPOST();
 }
 
@@ -143,7 +143,7 @@ void setLightsFromPOST() {
   } else if(b0 == 4) {
     raveStart();
   } else if(b0 == 5) {
-    // sirenStart();
+    fireworksStart();
   } else {
     Serial.println("ERROR: unrecognized POST content byte 0");
   }
@@ -158,7 +158,7 @@ void updateLights() {
   } else if(b0 == 4) {
     raveUpdate();
   } else if(b0 == 5) {
-    // sirenUpdate();
+    fireworksUpdate();
   } else {
     delay(500);
   }
@@ -184,14 +184,14 @@ void __attribute__((optimize("O2"))) handleGET() {
 }
 
 void __attribute__((optimize("O2"))) handlePOST() {
-  Serial.print("Got post chars=");
+  // Serial.print("Got post chars=");
   for(int i=0; i<postContentLength; i++) {
     char c = client.read();
     postContent[i] = c;
-    Serial.print((unsigned char)c);
-    Serial.print(" ");
+    // Serial.print((unsigned char)c);
+    // Serial.print(" ");
   }
-  Serial.println();
+  // Serial.println();
 
   setLightsFromPOST();
 

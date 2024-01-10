@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
     <title>Sunrise lights</title>
+    <!-- <script src="main.js"></script> -->
 
     <style>
       * {
@@ -26,7 +27,7 @@
       }
       body {
         position: relative;
-        padding: 15px;
+        padding: 10px;
         background-color: black;
       }
       #main {
@@ -42,7 +43,7 @@
         flex-grow: 1;
         text-decoration: underline;
         text-align: center;
-        font-size: 1rem;
+        font-size: 0.9rem;
       }
       .tab-link-selected {
         background-color: #444444;
@@ -82,9 +83,9 @@
       <div id='tabs'>
         <a class='tab-link' onclick='showTab(0)'>Rave</a>
         <a class='tab-link' onclick='showTab(1)'>Swirl</a>
-        <!-- <a class='tab-link' onclick='showTab()'>Siren</a> -->
-        <a class='tab-link' onclick='showTab(2)'>Solid</a>
-        <a class='tab-link' onclick='showTab(3)'>Sunrise</a>
+        <a class='tab-link' onclick='showTab(2)'>Fireworks</a>
+        <a class='tab-link' onclick='showTab(3)'>Solid</a>
+        <a class='tab-link' onclick='showTab(4)'>Sunrise</a>
       </div>
 
 
@@ -124,17 +125,27 @@
         <span class='content-spacing'>
           <label for='swirl-speed'>Speed: </label>
           <br/>
-          <input id='swirl-speed' type='range' min='1' max='255' step='1' value='20'/>
+          <input id='swirl-speed' type='range' min='1' max='255' step='1' value='200'/>
         </span>
         <span class='content-spacing'>
           <label for='swirl-brightness'>Brightness: </label>
           <br/>
           <input id='swirl-brightness' type='range' min='1' max='255' step='1' value='128'/>
         </span>
+      </div>
 
-        <!-- <span class='content-spacing'>
-          <i>Preset #1</i>
-        </span> -->
+      <!-- Fireworks -->
+      <div class='tab-content'>
+        <span class='content-spacing'>
+          <label for='fireworks-speed'>Speed: </label>
+          <br/>
+          <input id='fireworks-speed' type='range' min='1' max='255' step='1' value='200'/>
+        </span>
+        <span class='content-spacing'>
+          <label for='fireworks-brightness'>Brightness: </label>
+          <br/>
+          <input id='fireworks-brightness' type='range' min='1' max='255' step='1' value='255'/>
+        </span>
       </div>
 
       <!-- Solid -->

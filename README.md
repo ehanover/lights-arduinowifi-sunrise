@@ -17,7 +17,10 @@
     - Byte 1: `0`=flashing colors, `1`=rainbow
     - Byte 2: Speed
     - Byte 3: Brightness
-  - Case `5`: Siren
+  - Case `5`: Fireworks
+    - Byte 1: Speed
+    - Byte 2: Brightness
+  - Case `6`: Siren
     - Byte 1,2,3: RGB of color 1
     - Byte 4,5,6: RGB of color 2
     - Byte 7: Speed

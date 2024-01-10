@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        background-color: black;
+        text-align: center;
+      }
+      </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="1250" height="300" style="border:2px solid white;"></canvas>
+
+    <script>
+      const canvas = document.getElementById('myCanvas');
+      const context = canvas.getContext('2d');
+
+      // simulation-specific
+      const pixelSize = 11;
+      const pixelSpacing = 1.85;
+      const pixelStartX = 10;
+      const pixelY = 200;
+
+      // arduino setup equivalent
+      const LED_COUNT = 60;
+      let colors = [];
+
+      // pattern_fireworks
+      // stars start at a initial lifespan, sleeping, then 
+      const lifespan = 20; // measured in "frames"
+      let x1 = 0;
+      let x2 = 0;
+
+      let t1 = 0;
+      let t2 = 0;
+
+      function randomRange(min, max) {
+        return Math.floor(Math.random() * (max - min) + min);
+      }
+      function setColor(i, c) {
+        colors[i] = c;
+      }
+      function draw() {
+        for(let i=0; i<LED_COUNT; i++) {
+          context.fillStyle = colors[i];
+          context.fillRect(pixelStartX + pixelSize * pixelSpacing * i, pixelY, pixelSize, pixelSize+2);
+        }
+      }
+      function start() {
+        context.fillStyle = "gray";
+        for(let i=0; i<LED_COUNT; i++) {
+          colors[i] = "black"; // set initial colors
+          context.fillRect(pixelStartX - 2 + pixelSize * pixelSpacing * i, pixelY-2, pixelSize + 4, pixelSize+6);
+        }
+
+        startFireworks();
+      }
+      function loop() {
+        loopFireworks();
+      }
+      function rgbToColor(r, g, b, br) {
+        return `rgb(${r*br}, ${g*br}, ${b*br})`;
+      }
+
+      function startFireworks() {
+        t1 = 0;
+        t2 = 0;
+      }
+
+      function firework(i, x, t) {
+        if(Math.abs(x - i) < 5) {
+        
+          if(t < lifespan) {
+            // show colors along full size
+            return rgbToColor(0, 255, 50, t/lifespan);
+          } else if(t < lifespan + 10 && i == x) {
+            // show white in the center
+            return rgbToColor(255,255,255, (10-(t-lifespan))/10.0);
+          }
+        }
+        return 'black';
+      }
+
+      function loopFireworks() {
+        t1 -= 1;
+        if(t1 < 0) {
+          t1 = lifespan + randomRange(10, 30);
+          x1 = randomRange(0, LED_COUNT);
+          console.log("setting x1=", x1, "t1=", t1);
+        }
+
+        for(let i=0; i<LED_COUNT; i++) {
+          setColor(i, firework(i, x1, t1));
+        }
+        // for(let i=0; i<LED_COUNT; i++) {
+        //   setColor(i, firework(i, x2, t2));
+        // }
+        draw();
+      }
+
+      window.onload = () => {
+        start();
+        setInterval(loop, 1000 / 10);
+      }
+    </script>
+  </body>
+</html>
