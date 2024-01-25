@@ -1,17 +1,25 @@
-#define FIREWORKS_DELAY_MIN 20
-#define FIREWORKS_DELAY_MAX 80
+#define FIREWORKS_DELAY_MIN 10
+#define FIREWORKS_DELAY_MAX 70
 
-#define FIREWORKS_LIFETIME 35
+#define FIREWORKS_LIFETIME 40
+
+#define FIREWORKS_NUM_COLORS 4
+const unsigned char fireworksColors[] = { // brightness is handled in main file with setBrightness()
+  50, 130, 255, // blue
+  220, 150, 90, // yellow
+  255, 100, 50, // red
+  220, 70, 240, // purple
+};
 
 int x0;
 int x1;
-uint32_t c0 = 0;
-uint32_t c1 = 1;
+size_t c0;
+size_t c1;
 int t0;
 int t1;
 
 
-void firework(int ledIndex, int center, uint32_t color, int t) {
+void firework(int ledIndex, int center, int colorIndex, int t) {
   int diff = abs(ledIndex - center);
   if(diff < 9) { // sets 2*width
     if(t < FIREWORKS_LIFETIME) {
@@ -19,15 +27,7 @@ void firework(int ledIndex, int center, uint32_t color, int t) {
       float b = ((float)t)/FIREWORKS_LIFETIME;
       b /= 1 + (diff / 5.0);
 
-      // TODO fix
-      uint32_t tempColor;
-      if(color == 0) {
-        tempColor = rgbToColor(255, 80, 80, b);
-      } else {
-        tempColor = rgbToColor(0, 120, 255, b);
-      }
-
-      strip.setPixelColor(ledIndex, tempColor);
+      strip.setPixelColor(ledIndex, rgbToColor(fireworksColors[colorIndex], fireworksColors[colorIndex+1], fireworksColors[colorIndex+2], b));
 
     } else if(t < FIREWORKS_LIFETIME + 10 && ledIndex == center) {
       // center pixel increasing
@@ -50,15 +50,15 @@ void fireworksUpdate() {
   t0 -= 1;
   if(t0 < 0) {
     x0 = random(0, LED_COUNT);
-    // c0 = raveFlashColors[random(0, FLASH_NUM_COLORS)];
     t0 = FIREWORKS_LIFETIME + random(0, 50);
+    c0 = random(0, FIREWORKS_NUM_COLORS) * 3;
   }
 
   t1 -= 1;
   if(t1 < 0) {
     x1 = random(0, LED_COUNT);
-    // c1 = raveFlashColors[random(0, FLASH_NUM_COLORS)];
-    t1 = FIREWORKS_LIFETIME + random(10, 60);
+    t1 = FIREWORKS_LIFETIME + random(10, 70);
+    c1 = random(0, FIREWORKS_NUM_COLORS) * 3;
   }
 
   // overlapping the patterns is acceptable
